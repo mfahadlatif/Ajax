@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        	 load_tbl();
+			//getrow();
+			get_classes();
+			function get_classes(){
+				$.ajax({
+					url:"get_classes.php",
+					type:"POST",
+					success:function(d){
+						if(d==0){
+							$("#error_msg").html("Problem creating option").slideDown();
+							$("#success_msg").slideUp();
+						}else{
+							$("#clsid").html(d);
+						}
+					}
+				})
+			}
+			function load_tbl(){
+				$.ajax({
+					url:"load_table.php",
+					type:"POST",
+					success:function(d){
+						$(".child").html(d);
+					}
+				})
+			}
+			function getrow(){
+				$.ajax({
+					url:"load_table.php",
+					type:"POST",
+					success:function(d){
+						if(d==0){
+							$("#error_msg").html("could not reach").slideDown();
+							$("#success_msg").html("succsefuly added").slideUp();
+						}else{
+							$(".child").html(d);
+						}
+					}
+
+				})
+			}
+
+
+
+			// $("#get_data").click(function(){
+			// 	$.ajax({
+			// 		url:"C:\xampp\htdocs\load_table.php",
+			// 		type:"POST",
+			// 		success: function(d){
+			// 			$(".child").html(d);
+			// 		}
+			// 	})
+			// })
+			$('#insert_new').click(function(e){
+				e.preventDefault();
+				var stuid=$('#stu_id').val();
+				var stunme=$('#stu_nme').val();
+				var fathernme=$('#father_nme').val();
+				var fee=$('#fee').val();
+				var clsid=$('#clsid').val();
+				$.ajax({
+					url:"insert_rec.php",
+					data:{stuid:stuid,stunme:stunme,fathernme:fathernme,fee:fee,clsid:clsid},
+					type:"POST",
+					success:function(a){
+						if(a==1){
+							getrow();
+							$('form').trigger('reset');
+						}else{
+							$('#error_msg').html("could not reach").slideDown();
+							$('#success_msg').slideUp();
+						}
+					}
+				})
+			})
+			$(document).on("click",".up_btn",function(){
+				
+					var stuid=$(this).data('id');
+					
+					$.ajax({
+						url:"get_stu_data.php",
+						data:{s:stuid},
+						type:"POST",
+						success:function(d){
+							var m=JSON.parse(d);
+							if (d==0){
+
+								alert(d);
+							}else{
+								localStorage.setItem("stuid",m.stu_id);
+								$("#stu_nme").val(m.stu_nme);
+								$("#father_nme").val(m.father_nme);
+								$("#fee").val(m.fee);
+								$("#cls_id").val(m.cls);
+								$("#stu_id").val(m.stu_id);
+								$("#up_rec").show();
+								$("#insert_new").hide();						
+							}
+						},
+						error : function(err,msg){
+							alert(msg);
+						}
+					})
+				
+			})
+			$(document).on("click",".del_btn",function(){
+				if (confirm("Are you sure to delete record?")) {
+					var stuid=$(this).data('id');
+					var t=$(this);
+					$.ajax({
+						url:"del_php.php",
+						data:{s:stuid},
+						type:"POST",
+						success:function(d){
+							if (d==1){
+								$("#success_msg").html("record deleted succefully").slideDown();
+								$("#error_msg").slideUp();
+								$(t).closest('tr').fadeOut();
+							}else{
+								$("#success_msg").html("record could not deleted ").slideDown();
+								$("#error_msg").slideUp();
+							}
+						}
+					})
+				}
+			})
+			$("#up_rec").click(function(){
+				e.preventDefault();
+				var sid=localStorage.getItem("sid");
+				var stunme=$('#stu_nme').val();
+				var fathernme=$('#father_nme').val();
+				var fee=$('#fee').val();
+				var clsid=$('#clsid').val();
+				$.ajax({
+						url:"update_rec.php",
+						data:{sid:sid,stunme:stunme,fathernme:fathernme,fee:fee,clsid:clsid},
+						type:"POST",
+						success:function(d){
+							if (d==1){
+								$("form").trigger('reset');
+								$("#up_rec").hide();
+								$("#insert_new").show();
+								getrow();
+								
+							}
+						},
+						error:function(err,msg){
+							alert(msg);
+						}
+					})
+
+			})
+			
+			
+		
+    </script>
+</body>
+</html>

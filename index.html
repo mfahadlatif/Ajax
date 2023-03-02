@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>new insert</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style type="text/css">
+    body {
+        margin: 0;
+        padding: 0;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        height: 100%;
+    }
+
+    .parent {
+        width: 70%;
+
+    }
+
+    .child table {
+        width: 100%;
+        border-collapse: collapse;
+
+
+
+    }
+
+    td,
+    th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    #get_data {
+        width: 20%;
+        margin: 10px 0 0 0;
+        padding: 8px;
+    }
+
+    thead tr {
+        background-color: #333;
+        color: white;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #eee;
+    }
+
+    tbody tr:hover {
+        color: blue;
+    }
+
+    h1 {
+        font-family: arial;
+    }
+
+    .frm {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 0 10px 0;
+    }
+
+    .frm div {
+        width: 70%;
+        margin: 10px 0 0 0;
+    }
+
+    .frm label {
+        flex: 1;
+    }
+
+    .frm input,
+    select {
+        flex: 6;
+        padding: 8px;
+    }
+
+    .frm div {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    form {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        width: 100%
+    }
+
+    .frm div>button {
+        width: 20%;
+        padding: 8px;
+    }
+
+    .del_btn {
+        background-color: red;
+        padding: 4px 10px;
+        border: 0;
+        border-radius: 3px;
+        color: white;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+
+    .up_btn {
+        background-color: lightblue;
+        padding: 4px 10px;
+        border: 0;
+        border-radius: 3px;
+        color: blue;
+        cursor: pointer;
+    }
+
+    .child {
+        overflow-y: scroll;
+        height: 50vh;
+    }
+</style>
+
+<body>
+    <div class="parent">
+        <div class="alert alert-danger alert-dismissible">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <strong>Danger!</strong> This alert box could indicate a dangerous or potentially negative action.
+        </div>
+        <div class="frm">
+            <div id="alert1">
+
+            </div>
+            <div id="success_msg"></div>
+            <div id="error_msg"></div>
+            <h1>Add new student</h1>
+            <form action="">
+                <div>
+                    <label for="">Student id</label>
+                    <input type="text" name="" id="stu_id">
+                </div>
+                <div>
+                    <label for="">Student Name</label>
+                    <input type="text" name="" id="stu_nme">
+                </div>
+                <div>
+                    <label for="">Father Name</label>
+                    <input type="text" name="" id="father_nme">
+                </div>
+                <div>
+                    <label for="">fee</label>
+                    <input type="text" name="" id="fee">
+                </div>
+                <div>
+                    <label for="">class</label>
+                    <select name="" id="clsid"></select>
+                </div>
+                <div><button id="insert_new">Insert New</button>
+                     <button id="up_rec">Update data</button>
+                </div>
+
+
+            </form>
+        </div>
+        <div class="child" style="overflow-y: scroll;"></div>
+        <!-- 	<button id="get_data">Get Data</button> -->
+    </div>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#up_rec").hide();
+            getclasses();
+            getRows();
+            function getclasses() {
+                $.ajax({
+                    url: "backend/get_classes.php",
+                    type: "POST",
+                    success: function (d) {
+                        if (d == 0) {
+                            $("#error_msg").html("Could not load table").slideDown();
+                            $("#success_msg").slideUp();
+                        }
+                        else {
+                            $("#clsid").html(d);
+                        }
+                    }
+
+                })
+            }
+            function getRows() {
+                $.ajax({
+                    url: "backend/load_table.php",
+                    type: "POST",
+                    success: function (d) {
+                        if (d == 0) {
+
+                            document.getElementById("#error_msg")
+                            $("#error_msg").html("could not reach").slideDown();
+                            $("#success_msg").html("succsefuly added").slideUp();
+                        } else {
+                            $(".child").html(d);
+                        }
+                    }
+
+                })
+            }
+            $('#insert_new').click(function (e) {
+                e.preventDefault();
+                var stuid = $('#stu_id').val();
+                var stunme = $('#stu_nme').val();
+                var fathernme = $('#father_nme').val();
+                var fee = $('#fee').val();
+                var clsid = $('#clsid').val();
+                $.ajax({
+                    url: "backend/insert_rec.php",
+                    data: { stuid: stuid, stunme: stunme, fathernme: fathernme, fee: fee, clsid: clsid },
+                    type: "POST",
+                    success: function (a) {
+                        if (a == 1) {
+                            getRows();
+                            $('form').trigger('reset');
+                            $('#success_msg').html(" Insert data successfull").slideDown();
+                            $('#error_msg').slideUp();
+                        } else {
+                            $('#error_msg').html("could not Insert data").slideDown();
+                            $('#success_msg').slideUp();
+                        }
+                    }
+                })
+            })
+            $(document).on("click", ".del_btn", function () {
+                if (confirm("Are you Sure to delete data ?")) {
+                    var stuid = $(this).data('id');
+                    var t = $(this);
+                    $.ajax({
+                        url: "backend/del_php.php",
+                        data: { s: stuid },
+                        type: "POST",
+                        success: function (d) {
+                            if (d == "1") {
+                                getRows();
+                                
+                                $('#success_msg').html("Record deleted successfully").slideDown();
+                                $('#error_msg').slideUp();
+                                $(t).closest('tr').fadeOut();
+                            } else {
+                                $('#error_msg').html("could not Delete data").slideDown();
+                                $('#success_msg').slideUp();
+                            }
+                        },
+                        error: function (n, m, e) {
+                            alert(n.responseText);
+                        }
+
+                    })
+                }
+            })
+            $(document).on("click", ".up_btn", function () {
+                var stuid = $(this).data('id');
+                $.ajax({
+                    url: "backend/get_stu_data.php",
+                        data: { s: stuid },
+                        type: "POST",
+                        success:function(d){
+                            var m=JSON.parse(d);
+                            if(d==0){
+                                alert(d)
+                            }else{
+                                localStorage.setItem("sid",m.stu_id);
+                                $("#stu_id").val(m.stu_id);
+                                $("#stu_nme").val(m.stu_nme);
+                                $("#father_nme").val(m.father_nme);
+                                $("#fee").val(m.fee);
+                                $("#clsid").val(m.cls);
+                                $("#up_rec").show();
+                                $("#insert_new").hide();
+
+                            }
+                        },
+                        error : function(err,msg){
+							alert(msg);
+						}
+                })
+            
+            
+            })
+            $("#up_rec").click(function(e){
+				e.preventDefault();
+				var sid=localStorage.getItem("sid");
+              //  var stuid=$("#stu_id").val();
+				var stunme=$('#stu_nme').val();
+				var fathernme=$("#father_nme").val();
+				var fee=$("#fee").val();
+				var clsid=$("#clsid").val();
+				$.ajax({
+						url:"backend/update_rec.php",
+						type:"POST",
+                        data:{sid:sid,stunme:stunme,fathernme:fathernme,fee:fee,clsid:clsid},
+						success:function(d){
+							if (d==1){
+								$("form").trigger('reset');
+								$("#up_rec").hide();
+								$("#insert_new").show();
+								getRows();
+								
+							}
+                            else{
+                                alert(d);
+                            }
+						},
+						error:function(n,m,e){
+							alert(n.responseText);
+						}
+					})
+
+			})
+			
+
+        })
+    </script>
+</body>
+
+</html>
